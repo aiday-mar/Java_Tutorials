@@ -126,3 +126,5 @@ GreetingMessage gm2 = (String name) -> {
   System.out.println("Hello " + name);
 };
 ```
+
+Lambdas are used to implement functional interfaces when you are implementing the abstract method.
