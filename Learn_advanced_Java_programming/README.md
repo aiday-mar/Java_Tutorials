@@ -127,4 +127,29 @@ GreetingMessage gm2 = (String name) -> {
 };
 ```
 
-Lambdas are used to implement functional interfaces when you are implementing the abstract method.
+Lambdas are used to implement functional interfaces when you are implementing the abstract method. Below we override the get area method using the below lambda.
+
+```
+public static void main(String[] args) {
+
+  Square s = new Square(4);
+  
+  Shapes shapes = (Square square) -> {
+    return square.calculateArea();
+  };
+  
+  System.out.println("Area: " + shapes.getArea(s));
+}
+```
+This can also be written as :
+
+```
+public static void main(String[] args) {
+
+  Square s = new Square(4);
+  
+  Shapes shapes = Square::calculateArea;  // meaning here we take the square class and the corresponding metho
+  
+  System.out.println("Area: " + shapes.getArea(s));
+}
+```
