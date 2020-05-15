@@ -75,5 +75,21 @@ In the above, serve is a method called on the customer. HashMaps are common data
 HashMap<String, Integer> phonebook = new HashMap<>();
 phonebook.put("Kevin", 12345);
 phonebook.put("Jill", 98765);
+if (phonebook.containsKey("Kevin")){
+  phonebook.remove("Kevin")
+}
 System.out.println(phonebook);
+```
+In the below LinkedHashMap the first entry specifies the capacity of the map, the second entry specifies the percentage at while the map is full before augmenting in size. In the LinkedHashMap there is an optional third argument. We have the following code :
+
+```
+public static void main(String[] args) {
+    LinkedHashMap<String, Integer> phonebook = new LinkedHashMap(4, 0.75f, false);
+    phonebook.put("Joe", 12345);
+    System.out.println("Joe's number : " + phonebook.get("Joe"));
+    
+    for(Map.Entry<String, Integer> entry : phonebook.entrySet()) {
+      System.out.println(entry.getKey() + ": " + entry.getValue());
+    }
+}
 ```
