@@ -93,3 +93,36 @@ public static void main(String[] args) {
     }
 }
 ```
+A functional interface is an interface which can have any number of default, static methods but can contain only one abstract method.
+
+```
+@FunctionalInterface
+public interface GreetingMessage {
+  public abstract void greet(String name);
+}
+```
+When you instantiate you have to implement the greet metho which is abstract and was therefore not implemented earlier in the GreetingMessage interface.
+
+```
+public static void main(String[] args) {
+
+  GreetingMessage gm = new GreetingMessage() {
+    @Override
+    public void greet(String name) {
+      System.out.println("Hello" + name)
+    };
+    
+    // call the method as follows
+    
+    gm.greet("Bethan");
+  }
+}
+```
+
+Another way to define a function at the point where you want to use it is as such :
+
+```
+GreetingMessage gm2 = (String name) -> {
+  System.out.println("Hello " + name);
+};
+```
