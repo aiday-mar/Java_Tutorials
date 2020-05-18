@@ -259,4 +259,6 @@ public static ATM {
 }
 ```
 
-A synchronized section is a set of code that only one thread can enter at a time. The parameter in the brackets is the monitor object. Below we have the following situation which has two threads running at the same time and different orders in the monitor objects.
+A synchronized section is a set of code that only one thread can enter at a time. The parameter in the brackets is the monitor object. We can have situations where there are two threads running in parallel and with different orders of monitor objects, in this manner we have the program never comes to an end.
+
+There are various implementations of InputStreams and OutputStreams. Examples of InputStreams are : FileInputStream, ByteArrayInputStream, FilterInputStream. Examples of OutputeStreams are : FileOutputStreams, ByteArrayOutputStreams, FilterOutputStreams.
