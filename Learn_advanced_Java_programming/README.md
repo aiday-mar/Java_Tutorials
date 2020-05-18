@@ -267,7 +267,116 @@ There are various implementations of InputStreams and OutputStreams. Examples of
 public class PersonCrearor {
   public static void main(String[] args) {
     Scanner scanner = new Scanner(System.in);
-    System.out-print
+    System.out-print("Enter the name : ");
+    String name = scanner.next();
+    System.out.print("Enter the age : ");
+    int age = scanner.nextInt();
+    System.out.print("Enter a phone number : ");
+    Long phoneNumber = scanner.nextLong();
+    Person person = new Person(name, age, phoneNumber)
   } 
+}
+```
+
+We provide an example of the buffered reader :
+
+```
+public class BufferedReaderExample {
+  public static void main(String[] args) {
+  
+    File myFile = new File("example.txt");
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(myFile));
+      String line;
+      while((line = reader.readLine()) != null) {
+        System.out.println(line);
+      } 
+    } catch (IOException e) {
+      
+    }
+  }
+}
+```
+
+Here is an example of a try-catch block with resources :
+
+```
+public class TryWithResourcesExample {
+  
+  public static void main(String[] args) {
+    
+    try(BufferedReader reader = new BufferedReader(new StringReader("Hello World"));
+        StringWriter writer = new StringWriter();) {
+     
+      writer.write(reader.readLine());
+      System.out.println(writer.toString());
+     } catch(IOException ioe) {  }
+  }
+}
+```
+
+To create a new file we can run the following commands :
+
+```
+public class FileCreationExample {
+  
+  public static void main(String[] args) {
+    
+    File myFile = new File("C:\\Users\\aiday\\Desktop\\myFile.txt");
+    try {
+      boolean fileCreated = myFile.createNewFile();
+      System.out.println(fileCreated);
+    } catch (IOException ioe) {}
+  }
+}
+```
+
+Now there is a code snippet of working with directories. Consider the code below :
+
+```
+public static void main(String[] args) {
+  
+  FilenameFilter filter = (file, fileName) -> {
+    return fileName.contains(".");
+  }
+  
+  String[] contents = new File(".").list(filter);
+  for (String file : contents) { 
+    System.out.println(file);
+  }
+  
+  new File("myDirectory").mkdir();
+}
+```
+
+We also study how to use the Path class :
+
+```
+public static void main(String[] args) {
+  
+  Path path = Paths.get("Hello World-txt");
+  try {
+    Files.deleteIfExists(path);
+  } catch (IOException ex) {}
+  
+  Path path2 = Paths.get("C:\\Users\\aiday\\Desktop\\myFiles\\example.txt");
+  System.out.println(path2.getParent());
+  System.out.println(path2.getRoot());
+  System.out.println(path2.getFileName());
+}
+```
+
+Next we have the following code to copy files into other files.
+
+```
+public static void main(String[] args) {
+  
+  Path source = Paths.get("C:\\Users\\aiday\\Desktop\\example.txt");
+  Path dest = Paths.get("C:\\Users\\aiday\\Desktop\\next.txt");
+  try {
+    Files.copy(source, dest, REPLACE_EXISTING);
+  } catch (IOException ex) {
+    ex.prinStackTrace();
+  }
 }
 ```
