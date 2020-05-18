@@ -153,3 +153,27 @@ public static void main(String[] args) {
   System.out.println("Area: " + shapes.getArea(s));
 }
 ```
+
+We can write filters as follows. Here you call the println method on the  System.out class : 
+
+```
+books.stream().filter(book -> { return book.getAuthor().startWith("J");}).forEach(System.out::println);
+```
+
+Modularity makes it easier to write well encapsulated code. Modules contain code, some resources. It also contains some information describing itself. We can write this as :
+
+```
+module HelloWorld {
+  requires java.desktop;
+  exports helloworld;
+}
+```
+
+The structure of a simple modular application :
+
+```
+package pack
+
+public class Class {
+}
+```
