@@ -177,3 +177,86 @@ package pack
 public class Class {
 }
 ```
+
+You can run modules also from the command line as follows :
+
+```
+java --module-path output --module helloworld/com.bethan.helloworld.HelloWorld
+```
+
+Threads allow multiple actions to be performed in a single process. When a method is running on a thred, the local variables in the method are only available within the thread. Java has ab API for handling threads. Threads should be used for blocking input and output, for GUI applications. As well as if they use toolkits such as AWT or Swing. An example is as written below :
+
+```
+public class ThreadExample extends Thread {
+  
+  @Override
+  public void run() {
+    int i = 1;
+    while (i <= 100) {
+      System.out.println(i + " " + this.getName());
+      i++;
+    }
+  }
+}
+```
+
+So that the main class should be :
+
+```
+public class Main {
+  
+  public static void main(String[] args) {
+    
+    ThreadExample thread1 = new ThreadExample();
+    thread1.SetName("My first thread");
+    thread1.start();
+  }
+}
+```
+
+An example of the use of the runnable interface :
+
+```
+public class RunnableExample implements Runnable {
+
+  @Override
+  public void run() {
+    int i = 0;
+    while(i <= 100) {
+      System.out.println(i + " " + Thread.currentThread().getName());
+      i++;
+    }
+  }
+}
+```
+
+And it's implementation here :
+
+```
+public static void main(String[] args) {
+  Thread thread1 = new Thread(new RunnableExample());
+  thread1.start();
+  
+  Thread thread2 = new Thread(() -> {
+    int i = 0;
+    while (i <= 100) {
+      System.out.println(i + " " + Thread.currentThread().getName());
+      i++;
+    }
+  });
+  
+  thread2.start();
+}
+```
+
+In order to synchronize threads you may write the keyword `synchronized` before the name of the class as follows :
+
+```
+public static ATM {
+  static synchronized void withdraw(BankAccount account, int amount) {
+  ...
+  }
+}
+```
+
+A synchronized section is a set of code that only one thread can enter at a time. The parameter in the brackets is the monitor object. Below we have the following situation which has two threads running at the same time and different orders in the monitor objects.
