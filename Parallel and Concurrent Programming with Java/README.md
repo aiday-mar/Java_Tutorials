@@ -48,3 +48,4 @@ public class ConditionVariableDemo {
   }
 }
 ```
+A common design pattern in concurrent programming is the producer-consumer architecture. In this pattern, some threads act as producers, they add elements to shared data structures, while other threads act as consumers and remove elements from shared data structures. This pattern operates on the principle of first in first out.
