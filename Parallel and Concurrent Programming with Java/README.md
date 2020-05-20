@@ -1,4 +1,4 @@
-# Parallel and Concurrent Programming with Java
+# Parallel and Concurrent Programming with Java - TO FINISH
 
 These are notes taken from the course on parallel programming in Java.
 
