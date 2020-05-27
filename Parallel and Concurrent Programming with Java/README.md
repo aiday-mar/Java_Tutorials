@@ -125,4 +125,52 @@ class CellPhone extends Thread {
   }
 }
 ```
-Data races and race conditions are different potential probelsm in concurrent programs. Data races can occur when two or more threads concurrently access the same memory location. For this we need to ensure mutual exclusion for shared resources. 
+Data races and race conditions are different potential probelsm in concurrent programs. Data races can occur when two or more threads concurrently access the same memory location. For this we need to ensure mutual exclusion for shared resources. You can use sleep statements to modify timing and execution order. We have the following example :
+
+```
+class Shopper extends Thread {
+
+  public static int bagsOfChips = 1;
+  private static Lock pencil = new ReentrantLock();
+  
+  public Shopper(String name) {
+    this.setName(name);
+  }
+  
+  public void run() {
+    if (this.getName().contains("Olivia")) {
+      pencil.lock();
+      try {
+        bagsOfChips += 3;
+        System.out.println(this.getName() + "Added three bags of chips");
+      } finally {
+        pencil-unlock();
+      }
+    } else {
+      pencil.lock();
+      try {
+        bagOfChips *= 2;
+        System.out.println(this.getName() + "doubled the bags of chips");
+      } finally {
+        pencil.unlock();
+      }
+    }
+  }
+}
+
+public class RaceConditionDemo {
+  public static void main(String args[]) throws InterruptedException {
+  
+    Shopper[] shoppers = new Shopper[10];
+    for (int i=0; i<shoppers.length/2; i++) {
+      shoppers[2*i] = new Shopper("Barron="+i);
+      shopper[2*i+1] = new Shopper("Olivia="+i);
+    }
+    for (Shopper s : shoppers) 
+      s.start();
+    for (Shopper s : shoppers) 
+      s.join();
+    System.out.println("We need to buy " + Shopper.bagsOfChips + " bags of chips.");
+  }
+}
+```
