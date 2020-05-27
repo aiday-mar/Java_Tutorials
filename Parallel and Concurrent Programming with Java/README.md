@@ -1,4 +1,4 @@
-# Parallel and Concurrent Programming with Java - TO FINISH
+# Parallel and Concurrent Programming with Java
 
 These are notes taken from the course on parallel programming in Java.
 
@@ -50,4 +50,51 @@ public class ConditionVariableDemo {
 ```
 A common design pattern in concurrent programming is the producer-consumer architecture. In this pattern, some threads act as producers, they add elements to shared data structures, while other threads act as consumers and remove elements from shared data structures. This pattern operates on the principle of first in first out. First off, the queue is a shared resource so we need to enforce the mutual exclusion of producers and consumers and make sure that only one thread can use it at a time to add or remove items. We also need to make sure that producers do not add data when the queue is full. Consumers won't try to remove data from an empty buffer. It is also possible to have unbounded queues, which is a queue with an unlimited capacity.
 
-A pipeline is a chain of processing elements arranged so that the output of each element is the input to the next one.
+A pipeline is a chain of processing elements arranged so that the output of each element is the input to the next one. Java's `ArrayBlockingQueue` is a concrete class that implements the blocking queue interface. This mechanism is thread safe. We have :
+
+```
+import java.util.concurrrent.*;
+
+class SoupProducer extends Thread {
+  
+  private BlockinQueue servingLine;
+  
+  public SoupProducer(BlockingQueue servingLine) {this.servingLine = servingLine; }
+  
+  public void run() {
+    for (int i=0; i<20; i++) {
+      try {
+        servingLine.add("Bowl #" + i);
+        System.out.format("Served bowl #%d - remanining capacity: %d\n", i, servingLine.remainingCapacity());
+        Thread.sleep(200);
+      } catch (Exception e) { e.printStackTrace(); }
+    }
+  }
+}
+
+class SoupConsumer extends Thread {
+  
+  private BlockingQueue servingLine;
+  
+  public SoupConsumer(BlockingQueue servingLine) {this.servingLine = servingLine; }
+  
+  public void run() {
+    while (true) {
+      try {
+        String bowl = (String)servingLine.take();
+        if (bowl == "no soup for you!") break;
+        System.out.format("Ate %s\n", bowl);
+        Thread.sleep(300);
+      } catch(Exception e) { e.printStackTrace(); }
+    }
+  }
+}
+
+public class ProducerConsumerDemo {
+  public static void main(String args[]) {
+    BlockingQueue servingLine = new ArrayBlockingQueue<String>(5);
+    new SoupConsumer(servingLine).start();
+    new SoupProducer(servingLine).start();
+  }
+} 
+```
