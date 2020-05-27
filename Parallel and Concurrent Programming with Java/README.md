@@ -1,4 +1,4 @@
-# Parallel and Concurrent Programming with Java - TO FINISH
+# Parallel and Concurrent Programming with Java
 
 These are notes taken from the course on parallel programming in Java.
 
@@ -125,13 +125,17 @@ class CellPhone extends Thread {
   }
 }
 ```
-Data races and race conditions are different potential probelsm in concurrent programs. Data races can occur when two or more threads concurrently access the same memory location. For this we need to ensure mutual exclusion for shared resources. You can use sleep statements to modify timing and execution order. We have the following example :
+Data races and race conditions are different potential probelsm in concurrent programs. Data races can occur when two or more threads concurrently access the same memory location. For this we need to ensure mutual exclusion for shared resources. You can use sleep statements to modify timing and execution order. We have the following example where we also implented a barrier. A barrier prevets a group of threads from proceeding until enough threads have reached the barrier.
 
 ```
+import java.util.concurrent.locks.*;
+import java.util.concurrent.*;
+
 class Shopper extends Thread {
 
   public static int bagsOfChips = 1;
   private static Lock pencil = new ReentrantLock();
+  private static CyclicBarrier fistBump = new CyclicBarrier(10);
   
   public Shopper(String name) {
     this.setName(name);
@@ -146,7 +150,17 @@ class Shopper extends Thread {
       } finally {
         pencil-unlock();
       }
+      try {
+        fistbump.await();
+      } catch (InterruptedException | BrokenBarrierException e) {
+        e.printStackTrace();
+      }
     } else {
+      try {
+        fistbump.await();
+      } catch (InterruptedException | BrokenBarrierException e) {
+        e.printStackTrace();
+      }
       pencil.lock();
       try {
         bagOfChips *= 2;
@@ -174,3 +188,4 @@ public class RaceConditionDemo {
   }
 }
 ```
+There are some CyclicBarrier methods such as : `int getParties()` which gives the total number of threads needed to trip the barrier, `int getNumberWaiting()` which gives the current number of threads waiting on the barrier, `void reset()` which resets the barrier to the initial state, `boolean isBroken()` has a thread broken out since the last reset. There is another synchronization mechanism called a CountDownLatch, that allows one or more threads to wait until a set of operations being performed in other threads completes. You initialize this with `CountDownLatch(value)` where we have the initial value `value`, and we can use the keyword `await()` in order to wait for the count value to reach zero, we also have `countDown()` which decrements the count value. The difference between the two is that the cyclic barrier releases when a certain number of threads are waiting, and the count down latch releases when the count value reaches zero.
