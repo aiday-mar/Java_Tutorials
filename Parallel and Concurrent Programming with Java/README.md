@@ -98,4 +98,31 @@ public class ProducerConsumerDemo {
   }
 } 
 ```
-Semaphore is a synchronization mechanism that can be used to control the access to shared resources. The semaphore can be used by multiple threads at the same time. The semaphore has a counter, as long as it is positive, we decrement the counter. If the counter is zero, we wait until the semaphore becomes available. When a thread is done using the semaphore it releases the semaphore, and increments the counter value. A binary sempahore can have one of two values, zero or one, where zero represents locked and one represents unlocked. It can be used in a similar way to the mutex by acquiring and releasing. However there are differences between the mutex and the semaphore. The mutex can only be acquired or released by the same thread, that originally locked it. A semaphore can be acquired and released by different threads. This whole procedure is called the signalling mechanism. A semaphore can be used in the same way to condition variables, to synchronize producer and consumer threads, adding and removing elements from a shared finite queueor buffer. 
+Semaphore is a synchronization mechanism that can be used to control the access to shared resources. The semaphore can be used by multiple threads at the same time. The semaphore has a counter, as long as it is positive, we decrement the counter. If the counter is zero, we wait until the semaphore becomes available. When a thread is done using the semaphore it releases the semaphore, and increments the counter value. A binary sempahore can have one of two values, zero or one, where zero represents locked and one represents unlocked. It can be used in a similar way to the mutex by acquiring and releasing. However there are differences between the mutex and the semaphore. The mutex can only be acquired or released by the same thread, that originally locked it. A semaphore can be acquired and released by different threads. This whole procedure is called the signalling mechanism. A semaphore can be used in the same way to condition variables, to synchronize producer and consumer threads, adding and removing elements from a shared finite queueor buffer. An example of the semaphore is :
+
+```
+import java.util.concurrent.*;
+
+class CellPhone extends Thread {
+  
+  private static Semaphore charger = new Semaphore(4);
+  
+  public CellPhone(String name) {
+    this.setName(name);
+  }
+  
+  public void run() {
+    try {
+      charger.acquire();
+      System.out.println(this.getName() + " is charging ...");
+      Thread.sleep(ThreadLocalRandom.current().nextInt(1000, 2000));
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } finally {
+      System.out.println(this.getName() + "is done charging");
+      charger.release();
+    }
+  }
+}
+```
+Data races and race conditions are different potential probelsm in concurrent programs. Data races can occur when two or more threads concurrently access the same memory location. For this we need to ensure mutual exclusion for shared resources. 
