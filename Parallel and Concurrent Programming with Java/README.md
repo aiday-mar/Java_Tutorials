@@ -98,3 +98,4 @@ public class ProducerConsumerDemo {
   }
 } 
 ```
+Semaphore is a synchronization mechanism that can be used to control the access to shared resources. The semaphore can be used by multiple threads at the same time. The semaphore has a counter, as long as it is positive, we decrement the counter. If the counter is zero, we wait until the semaphore becomes available. When a thread is done using the semaphore it releases the semaphore, and increments the counter value.
