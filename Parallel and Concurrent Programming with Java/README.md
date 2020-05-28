@@ -211,3 +211,72 @@ public class ThreadPoolDemo {
   }
 }
 ```
+You can return a tak of result of type V, and may throw an exception with `Callable<V> Interface`.
+
+```
+import java.util.concurrent.*;
+
+class HowManyVegetables implements Callable {
+  public Integer call() throws Exception {
+    System.out.println("Olivia is counting vegetables..");
+    Thread.sleep(3000);
+    return 42;
+  }
+}
+
+public class FutureDemo {
+  public static void main(String args[]) throws ExecutionException, InterruptedException {
+    System.out.println("Barron asks Olivia how many vegetables are in the pantry.");
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    Future result = executor.submit(new HowManyVegetables());
+    System.our.println("Barron can do other things while he waits for the result...");
+    System.out.println("Olivia respondeed with " + result.get());
+    executor.shutdown();
+  }
+}
+```
+A Fork/Join framework is a framework for executing recursive divide-and-conquer work with multiple processors. The ForkJoinPool distributes tasks to its worker threads. The ExecutorService that executes FrokJoinTasks. The `fork()` method asynchronously executes a task in the ForkJoinPool. The `join()` method results in a computation when it is done. The subclasses are `RecursiveTask<V>` returns a result and the `RecursiveAction` does not return a result.
+
+```
+import java.util.concurrent.*;
+
+class RecursiveSum extends RecursiveTask<Long> {
+  
+  private long lo, hi;
+  
+  public RecursiveSum(long lo, long hi) {
+    this.lo = lo;
+    this.hi = hi;
+  }
+  
+  protected Long compute() {
+    if (hi - lo <= 100_000) {
+      long total = 0;
+      for (long i = lo; i <= hi; i++) total += i;
+      return total;
+    } else {
+      long mid = (hi+lo)/2;
+      RecursiveSum left = new RecursiveSum(lo, mid);
+      Recursiveum right = new RecursiveSum(mid+1, hi);
+      left.fork();
+      return right.compute() + left.join();
+    }
+  }
+}
+
+public class DivideAndConquerDemo {
+  public static void main(String args[]) {
+    ForkJoinPool pool = ForkJoinPool.commonPool();
+    Long total = pool.invoke(new RecursiveSum(0, 1_000_000_000));
+    pool.shutdown();
+    System.out.println("Total sum is " + total);
+  }
+}
+```
+Strong scaling requires a variable number of processors with fixed total problem size. The throughput is the number of tasks divided by the time. The latency is the time needed to finish a task. The speed up is equal to the sequential execution time divided by the parallel execution time with N workers. In Amdahl's law, the P represents the portion of a program that is parallelizable. S is the speedup of the parallelizable portion. The overall speedup is :
+
+```
+overall speedup = 1/((1-p) + p/S)
+```
+
+The efficiency is a measure of how well additional resources are utilized. The effiency is equal to the speedup divided by the number of processors. 
