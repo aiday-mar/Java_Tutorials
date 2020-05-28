@@ -189,3 +189,25 @@ public class RaceConditionDemo {
 }
 ```
 There are some CyclicBarrier methods such as : `int getParties()` which gives the total number of threads needed to trip the barrier, `int getNumberWaiting()` which gives the current number of threads waiting on the barrier, `void reset()` which resets the barrier to the initial state, `boolean isBroken()` has a thread broken out since the last reset. There is another synchronization mechanism called a CountDownLatch, that allows one or more threads to wait until a set of operations being performed in other threads completes. You initialize this with `CountDownLatch(value)` where we have the initial value `value`, and we can use the keyword `await()` in order to wait for the count value to reach zero, we also have `countDown()` which decrements the count value. The difference between the two is that the cyclic barrier releases when a certain number of threads are waiting, and the count down latch releases when the count value reaches zero.
+
+You divide the task into smaller task and run each independently. The thread pool creates and maintains a collection of worker threads. It reuses existing threads to execute tasks. We will use the executor service interface in the `java.util.concurrent` package.  It is a higher level interface for running tasks. In the executor service there is a task queue which connects to a thread pool. We have an executors class which has different methods as follows : a `newSingleThreadExecutor()` method which creates an executor that uses a single thread to execute tasks, and a `newFixedThreadPool(int nThreads)` which creates a thread pool that reuses a fixed number of threads to execute tasks. An example :
+
+```
+import java.util.concurrent.*;
+
+class VegetableChopper extends Thread {
+  public void run() {
+    System.out.println(Thread.currentThread().getName() + " chopped a vegetable !");
+  }
+}
+
+public class ThreadPoolDemo {
+  public static void main(String args[]) {
+    int numProcs = Runtime.getRuntime().availableProcessors();
+    ExecutorService pool = Executors.newFixedThreadPool(numProcs);
+    for (int i=0; i<100; i++)
+      pool.submit(new VegetableChopper());
+    pool.shutdown();
+  }
+}
+```
