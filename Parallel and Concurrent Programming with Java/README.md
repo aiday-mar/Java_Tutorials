@@ -279,4 +279,357 @@ Strong scaling requires a variable number of processors with fixed total problem
 overall speedup = 1/((1-p) + p/S)
 ```
 
-The efficiency is a measure of how well additional resources are utilized. The effiency is equal to the speedup divided by the number of processors. 
+The efficiency is a measure of how well additional resources are utilized. The effiency is equal to the speedup divided by the number of processors. In synchronous blocking communication, tasks wait until the entire communication is complete, you can not do other work while this is in progress. In asynchrnous nonblocking communication, the tasks do not wait for the communication to be complete. The overhead is the compute time/resources spent on comunication. Using fine-grained parallelism, the problem is broken down into a large number of small tasks. In the fine-grained parallelism there is a good distribution of the workload, and there is a low computation-to-communication ratio. Coarse-grained parallelism splits the program into a small number of large tasks. This coarse-grained parallelism has a high computation-to-communication ratio, and it has inefficient load balancing.
+
+The mapping process does not apply to single-core processors and atuomated task scheduling. The operating system handles scheduling threads to execute on specific processor cores. The goal of a mapping algorithm is to minimize the total execution time of the program. Here you need to place tasks that can execute concurrently on different processors. Or you can place tasks that communicate frquently on the same processor.
+
+We include a couple of examples of parallel and concurrent programming in java.
+
+```
+import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.*;
+
+/* sequential implementation of matrix multiplication */
+class SequentialMatrixMultiplier {
+
+    private int[][] A, B;
+    private int numRowsA, numColsA, numRowsB, numColsB;
+
+    public SequentialMatrixMultiplier(int[][] A, int[][] B) {
+        this.A = A;
+        this.B = B;
+        this.numRowsA = A.length;
+        this.numColsA = A[0].length;
+        this.numRowsB = B.length;
+        this.numColsB = B[0].length;
+        if (numColsA != numRowsB)
+            throw new Error(String.format("Invalid dimensions; Cannot multiply %dx%d*%dx%d\n", numRowsA, numRowsB, numColsA, numColsB));
+    }
+
+    /* returns matrix product C = AB */
+    public int[][] computeProduct() {
+        int[][] C = new int[numRowsA][numColsB];
+        for (int i=0; i<numRowsA; i++) {
+            for (int k=0; k<numColsB; k++) {
+                int sum = 0;
+                for (int j=0; j<numColsA; j++) {
+                    sum += A[i][j] * B[j][k];
+                }
+                C[i][k] = sum;
+            }
+        }
+        return C;
+    }
+}
+
+/* parallel implementation of matrix multiplication */
+class ParallelMatrixMultiplier {
+
+    private int[][] A, B;
+    private int numRowsA, numColsA, numRowsB, numColsB;
+
+    public ParallelMatrixMultiplier(int[][] A, int[][] B) {
+        this.A = A;
+        this.B = B;
+        this.numRowsA = A.length;
+        this.numColsA = A[0].length;
+        this.numRowsB = B.length;
+        this.numColsB = B[0].length;
+        if (numColsA != numRowsB)
+            throw new Error(String.format("Invalid dimensions; Cannot multiply %dx%d*%dx%d\n", numRowsA, numRowsB, numColsA, numColsB));
+    }
+
+    /* returns matrix product C = AB */
+    public int[][] computeProduct() {
+        // create thread pool
+        int numWorkers = Runtime.getRuntime().availableProcessors();
+        ExecutorService pool = Executors.newFixedThreadPool(numWorkers);
+
+        // submit tasks to calculate partial results
+        int chunkSize = (int) Math.ceil((double) numRowsA / numWorkers);
+        Future<int[][]>[] futures = new Future[numWorkers];
+        for (int w=0; w<numWorkers; w++) {
+            int start = Math.min(w * chunkSize, numRowsA);
+            int end = Math.min((w + 1) * chunkSize, numRowsA);
+            futures[w] = pool.submit(new ParallelWorker(start, end));
+        }
+
+        // merge partial results
+        int[][] C = new int[numRowsA][numColsB];
+        try {
+            for (int w=0; w<numWorkers; w++) {
+                // retrieve value from future
+                int[][] partialC = futures[w].get();
+                for (int i=0; i<partialC.length; i++)
+                    for (int j=0; j<numColsB; j++)
+                        C[i + (w * chunkSize)][j] = partialC[i][j];
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        pool.shutdown();
+        return C;
+    }
+
+    /* worker calculates result for subset of rows in C */
+    private class ParallelWorker implements Callable {
+
+        private int rowStartC, rowEndC;
+
+        public ParallelWorker(int rowStartC, int rowEndC) {
+            this.rowStartC = rowStartC;
+            this.rowEndC = rowEndC;
+        }
+
+        public int[][] call() {
+            int[][] partialC = new int[rowEndC-rowStartC][numColsB];
+            for(int i=0; i<rowEndC-rowStartC; i++) {
+                for(int k=0; k<numColsB; k++) {
+                    int sum = 0;
+                    for(int j=0; j<numColsA; j++) {
+                        sum += A[i+rowStartC][j]*B[j][k];
+                    }
+                    partialC[i][k] = sum;
+                }
+            }
+            return partialC;
+        }
+    }
+}
+
+public class MatrixMultiplySolution {
+
+    /* helper function to generate MxN matrix of random integers */
+    public static int[][] generateRandomMatrix(int M, int N) {
+        System.out.format("Generating random %d x %d matrix...\n", M, N);
+        Random rand = new Random();
+        int[][] output = new int[M][N];
+        for (int i=0; i<M; i++)
+            for (int j=0; j<N; j++)
+                output[i][j] = rand.nextInt(100);
+        return output;
+    }
+
+    /* evaluate performance of sequential and parallel implementations */
+    public static void main(String args[]) {
+        final int NUM_EVAL_RUNS = 5;
+        final int[][] A = generateRandomMatrix(50,50);
+        final int[][] B = generateRandomMatrix(50,50);
+
+        System.out.println("Evaluating Sequential Implementation...");
+        SequentialMatrixMultiplier smm = new SequentialMatrixMultiplier(A,B);
+        int[][] sequentialResult = smm.computeProduct();
+        double sequentialTime = 0;
+        for(int i=0; i<NUM_EVAL_RUNS; i++) {
+            long start = System.currentTimeMillis();
+            smm.computeProduct();
+            sequentialTime += System.currentTimeMillis() - start;
+        }
+        sequentialTime /= NUM_EVAL_RUNS;
+
+        System.out.println("Evaluating Parallel Implementation...");
+        ParallelMatrixMultiplier pmm = new ParallelMatrixMultiplier(A,B);
+        int[][] parallelResult = pmm.computeProduct();
+        double parallelTime = 0;
+        for(int i=0; i<NUM_EVAL_RUNS; i++) {
+            long start = System.currentTimeMillis();
+            pmm.computeProduct();
+            parallelTime += System.currentTimeMillis() - start;
+        }
+        parallelTime /= NUM_EVAL_RUNS;
+
+        // display sequential and parallel results for comparison
+        if (!Arrays.deepEquals(sequentialResult, parallelResult))
+            throw new Error("ERROR: sequentialResult and parallelResult do not match!");
+        System.out.format("Average Sequential Time: %.1f ms\n", sequentialTime);
+        System.out.format("Average Parallel Time: %.1f ms\n", parallelTime);
+        System.out.format("Speedup: %.2f \n", sequentialTime/parallelTime);
+        System.out.format("Efficiency: %.2f%%\n", 100*(sequentialTime/parallelTime)/Runtime.getRuntime().availableProcessors());
+    }
+}
+```
+
+Next we try to implement the merge sort algorithm as above using parallel and concurrent programming principles : 
+
+```
+import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.*;
+
+/* sequential implementation of merge sort */
+class SequentialMergeSorter {
+
+    private int[] array;
+
+    public SequentialMergeSorter(int[] array) {
+        this.array = array;
+    }
+
+    /* returns sorted array */
+    public int[] sort() {
+        sort(0, array.length-1);
+        return array;
+    }
+
+    /* helper method that gets called recursively */
+    private void sort(int left, int right) {
+        if (left < right) {
+            int mid = (left+right)/2; // find the middle point
+            sort(left, mid); // sort the left half
+            sort(mid+1, right); // sort the right half
+            merge(left, mid, right); // merge the two sorted halves
+        }
+    }
+
+    /* helper method to merge two sorted subarrays array[l..m] and array[m+1..r] into array */
+    private void merge(int left, int mid, int right) {
+        // copy data to temp subarrays to be merged
+        int leftTempArray[] = Arrays.copyOfRange(array, left, mid+1);
+        int rightTempArray[] = Arrays.copyOfRange(array, mid+1, right+1);
+
+        // initial indexes for left, right, and merged subarrays
+        int leftTempIndex=0, rightTempIndex=0, mergeIndex=left;
+
+        // merge temp arrays into original
+        while (leftTempIndex < mid - left + 1 || rightTempIndex < right - mid) {
+            if (leftTempIndex < mid - left + 1 && rightTempIndex < right - mid) {
+                if (leftTempArray[leftTempIndex] <= rightTempArray[rightTempIndex]) {
+                    array[mergeIndex ] = leftTempArray[leftTempIndex];
+                    leftTempIndex++;
+                } else {
+                    array[mergeIndex ] = rightTempArray[rightTempIndex];
+                    rightTempIndex++;
+                }
+            } else if (leftTempIndex < mid - left + 1) { // copy any remaining on left side
+                array[mergeIndex ] = leftTempArray[leftTempIndex];
+                leftTempIndex++;
+            } else if (rightTempIndex < right - mid) { // copy any remaining on right side
+                array[mergeIndex ] = rightTempArray[rightTempIndex];
+                rightTempIndex++;
+            }
+            mergeIndex++;
+        }
+    }
+}
+
+/* parallel implementation of merge sort */
+class ParallelMergeSorter {
+
+    private int[] array;
+
+    public ParallelMergeSorter(int[] array) {
+        this.array = array;
+    }
+
+    /* returns sorted array */
+    public int[] sort() {
+        int numWorkers = Runtime.getRuntime().availableProcessors();
+        ForkJoinPool pool = new ForkJoinPool(numWorkers);
+        pool.invoke(new ParallelWorker(0,array.length-1));
+        return array;
+    }
+
+    /* worker that gets called recursively */
+    private class ParallelWorker extends RecursiveAction {
+
+        private int left, right;
+
+        public ParallelWorker(int left, int right) {
+            this.left = left;
+            this.right = right;
+        }
+
+        protected void compute() {
+            if (left < right) {
+                int mid = (left + right) / 2; // find the middle point
+                ParallelWorker leftWorker = new ParallelWorker(left, mid);
+                ParallelWorker rightWorker = new ParallelWorker(mid+1, right);
+                invokeAll(leftWorker, rightWorker);
+                merge(left, mid, right); // merge the two sorted halves
+            }
+        }
+    }
+
+    /* helper method to merge two sorted subarrays array[l..m] and array[m+1..r] into array */
+    private void merge(int left, int mid, int right) {
+        // copy data to temp subarrays to be merged
+        int leftTempArray[] = Arrays.copyOfRange(array, left, mid+1);
+        int rightTempArray[] = Arrays.copyOfRange(array, mid+1, right+1);
+
+        // initial indexes for left, right, and merged subarrays
+        int leftTempIndex=0, rightTempIndex=0, mergeIndex=left;
+
+        // merge temp arrays into original
+        while (leftTempIndex < mid - left + 1 || rightTempIndex < right - mid) {
+            if (leftTempIndex < mid - left + 1 && rightTempIndex < right - mid) {
+                if (leftTempArray[leftTempIndex] <= rightTempArray[rightTempIndex]) {
+                    array[mergeIndex ] = leftTempArray[leftTempIndex];
+                    leftTempIndex++;
+                } else {
+                    array[mergeIndex ] = rightTempArray[rightTempIndex];
+                    rightTempIndex++;
+                }
+            } else if (leftTempIndex < mid - left + 1) { // copy any remaining on left side
+                array[mergeIndex ] = leftTempArray[leftTempIndex];
+                leftTempIndex++;
+            } else if (rightTempIndex < right - mid) { // copy any remaining on right side
+                array[mergeIndex ] = rightTempArray[rightTempIndex];
+                rightTempIndex++;
+            }
+            mergeIndex++;
+        }
+    }
+}
+
+public class MergeSortSolution {
+
+    /* helper function to generate array of random integers */
+    public static int[] generateRandomArray(int length) {
+        System.out.format("Generating random array int[%d]...\n", length);
+        Random rand = new Random();
+        int[] output = new int[length];
+        for (int i=0; i<length; i++)
+            output[i] = rand.nextInt();
+        return output;
+    }
+
+    /* evaluate performance of sequential and parallel implementations */
+    public static void main(String[] args) {
+        final int NUM_EVAL_RUNS = 5;
+        final int[] input = generateRandomArray(100_000_000);
+
+        System.out.println("Evaluating Sequential Implementation...");
+        SequentialMergeSorter sms = new SequentialMergeSorter(Arrays.copyOf(input, input.length));
+        int[] sequentialResult = sms.sort();
+        double sequentialTime = 0;
+        for(int i=0; i<NUM_EVAL_RUNS; i++) {
+            sms = new SequentialMergeSorter(Arrays.copyOf(input, input.length));
+            long start = System.currentTimeMillis();
+            sms.sort();
+            sequentialTime += System.currentTimeMillis() - start;
+        }
+        sequentialTime /= NUM_EVAL_RUNS;
+
+        System.out.println("Evaluating Parallel Implementation...");
+        ParallelMergeSorter pms = new ParallelMergeSorter(Arrays.copyOf(input, input.length));
+        int[] parallelResult = pms.sort();
+        double parallelTime = 0;
+        for(int i=0; i<NUM_EVAL_RUNS; i++) {
+            pms = new ParallelMergeSorter(Arrays.copyOf(input, input.length));
+            long start = System.currentTimeMillis();
+            pms.sort();
+            parallelTime += System.currentTimeMillis() - start;
+        }
+        parallelTime /= NUM_EVAL_RUNS;
+
+        // display sequential and parallel results for comparison
+        if (!Arrays.equals(sequentialResult, parallelResult))
+            throw new Error("ERROR: sequentialResult and parallelResult do not match!");
+        System.out.format("Average Sequential Time: %.1f ms\n", sequentialTime);
+        System.out.format("Average Parallel Time: %.1f ms\n", parallelTime);
+        System.out.format("Speedup: %.2f \n", sequentialTime/parallelTime);
+        System.out.format("Efficiency: %.2f%%\n", 100*(sequentialTime/parallelTime)/Runtime.getRuntime().availableProcessors());
+    }
+}
+```
