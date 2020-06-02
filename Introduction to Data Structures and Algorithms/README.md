@@ -224,4 +224,51 @@ Merge(A, start, mid, end)
     else A[k] = right[j]
       j = j + 1
 ```
-We have sorted arrays and linked lists. 
+We have sorted arrays and linked lists. We can implement also binary trees. For that, we need the node of the three.
+
+```
+package pkg7
+
+public class TreeNode {
+
+  private Integer data;
+  private TreeNode leftChild;
+  private TreeNode rightChild;
+  
+  public Integer getData() {
+    return data;
+  }
+  
+  public setLeftChild(TreeNode leftChild) {
+    this.leftChild = leftChild;
+  }
+  
+  public void setRightChild(TreeNode rightChild) {
+    this.rightChild = rightChild;
+  }
+  
+  public TreeNode getLeftChild() {
+    return leftChild;
+  }
+  
+  public TreeNode getRightChild() {
+    return rightChild;
+  }
+}
+```
+The corresponding binary tree is :
+
+```
+package pkg7
+
+public class BinaryTree {
+  
+  private TreeNode root;
+  
+  public void insert(Integer data) {}
+  
+  public TreeNode find(Integer data) { return null;}
+  
+  public void delete(Integer data) {}
+}
+```
