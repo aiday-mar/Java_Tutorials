@@ -54,7 +54,38 @@ public class LinkedList {
   @Override
   public string toString() {
     String result = "{";
-    Node current = 
+    Node current = this.head;
+    while (current != null) {
+      result += current.toString() + ",";
+      current = current.getNextNode();
+    }
+    result += "}";
+    return result;
   } 
+  
+  public int length() {
+    int length = 0;
+    Node current = this.head;
+    while (current != null) {
+      length++;
+      current=current.getNextNode();
+    }
+    return length;
+  }
+  
+  public void deleteFromHead() {
+    this.head = this.head.getNextNode();
+  }
+  
+  public Node find(int data) {
+    Node current = this.head;
+    while (current != null)  {
+      if (current.getData() == data) {
+        return current;
+      }
+      current = current.getNextNode();
+    }
+    return null;
+  }
 }
 ```
