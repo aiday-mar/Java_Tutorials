@@ -224,3 +224,4 @@ Merge(A, start, mid, end)
     else A[k] = right[j]
       j = j + 1
 ```
+We have sorted arrays and linked lists. 
