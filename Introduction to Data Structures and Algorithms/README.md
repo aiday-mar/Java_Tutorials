@@ -170,3 +170,57 @@ public class DoublyLinkedList {
   }
 }
 ```
+In stacks all the data elements are inserted from the top, and are also removed from the top. These two operations are called push and pop. Now we will implement stacks and queues using arrays. The enqueue operation inserts an element in the queue from the tail towards the head. The dequeue operation removes an element in the queue from the head of the queue. The peek operation returns the first element of the queue without removing it. 
+
+Let's study some recursions. We have euclid's algorithm :
+
+```
+public int gcd (int a, int b) {
+
+  if (b==0) return a;
+  return gcd(b, a%b);
+}
+```
+
+An example of a tail recursion to calculate the factorial :
+
+```
+public int factorial (int n, int result) {
+  if (n==0) return result;
+  return factorial(n-1, n*result);
+}
+
+factorial(int n) {
+  return factorial(n,1);
+}
+```
+
+In the tail recursion there is an accumulator, because it accumulates values of the previous calculations, giving us a definite value everytime. We have the following pseudo-code : 
+
+```
+MergeSort(A, start, end)
+  if start < end 
+    middle = Floor[(start + end)/2]
+    MergeSort(A, start, middle)
+    MergeSort(A, middle+1, end)
+    Merge(A, start, middle, end)
+```
+Now we also provide the code for the Merge algorithm :
+
+```
+Merge(A, start, mid, end)
+  n1 = mid - start + 1
+  n2 = end - mid
+  Let left[0,...,n1] and right[0,...,n2] be new temp arrays
+  for i=0 to n1-1
+    left[i] = A[start + i]
+  for j=0 to n2-i
+    right[j] = A[mid + 1 + j]
+  i, j = 0
+  for k = start to end
+    if left[i] <= right[j]
+      A[k] = left[i]
+      i = i+1
+    else A[k] = right[j]
+      j = j + 1
+```
