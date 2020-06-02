@@ -145,3 +145,46 @@ public void testMain() {
 }
 ```
 Let's try tu run parametrized test where we check that the sum of the first two entries in the first two columns eaulas the entry in the last column.
+
+```
+package parametrizedexample;
+import java.util.Arrays;
+import java.util.Collections;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parametrized;
+import org.junit.runners.Parametrized.Parameters;
+
+@RunWith(value = Parametrized.class)
+public class parametrizedTest {
+  private int numA;
+  private int numB;
+  private int expected;
+  
+  public parametrizedTest(int numA, int numB, int expected) {
+    this.numA = numA;
+    this.numB = numB;
+    this.expected = expected;
+  }
+  
+  @Parameters
+  public static Collection<Object[]> data() {
+    return Arrays.asList(new Object[][] {
+      {1, 1, 2}, 
+      {2, 2, 4},
+      {3, 2, 5},
+      {4, 5, 9},
+      {5, 5, 10},
+      {6, 6, 12},
+      {7, 8, 15},
+    });
+  }
+  
+  @Test
+  public void test_addTwoNumbers() {
+    assertThat(MathUtils.add(numA, numB), is(expected));
+  }
+}
+```
