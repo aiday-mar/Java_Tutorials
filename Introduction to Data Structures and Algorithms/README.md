@@ -89,7 +89,7 @@ public class LinkedList {
   }
 }
 ```
-We also study doubly linked lists that have a pointer to the head and the tail of the list. 
+We also study doubly ended lists that have a pointer to the head and the tail of the list. 
 
 ```
 public class DoublyEndedList {
@@ -118,6 +118,55 @@ public class DoublyEndedList {
     }
     result += "}";
     return result;
+  }
+}
+```
+
+In a doubly-linked list every node points to the next and the previous node.
+
+```
+public class DoublyLinkedList {
+  
+  private DoublyLinkedNode head;
+  
+  public void insertAtHead (int data) {
+    DoublyLinkedNode newNode = new DoublyLinkedNode(data);
+    newNode.setNextNode(this.head);
+    if (this.head != null) {
+      this.head.setPreviousNode(newNode);
+    }
+    this.head = newNode;
+  }
+  
+  public int length() {
+    if (head == null) {
+      return 0;
+    }
+    int length = 0;
+    DoublyLinkedNode current = this.head;
+    
+    while(current != null) {
+      length += 1;
+      current = current.getNextNode();
+    }
+    
+    return length;
+  }
+  
+  @Override 
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    DoublyLinkedNode n = this.head;
+    
+    while (n != null) {
+      sb.append("Node data");
+      sb.append(n);
+      sb.append("\n");
+      
+      n = n.getNextNode();
+    }
+    
+    return sb.toString();
   }
 }
 ```
