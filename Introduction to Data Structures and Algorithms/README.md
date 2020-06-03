@@ -369,3 +369,16 @@ public class BinaryTree {
   }
 }
 ```
+
+The in order tree traversal requires you to traverse the left subtree, the root and the right subtree recursively. The pre-order traversal traverses the root first, then the left subtree, then the right subtree. 
+
+We study some more sortin techniques : quick, shekk, countin, radix, bucket. The pseudo code for the quick sort is as follows :
+
+```
+QuickSort(A, start, end)
+  if start < end  
+    return
+  pivot = Partition(A, start, end)
+  QuickSort(A, start, pivot-1)
+  QuickSort(A, pivot+1, end)
+```
