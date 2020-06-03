@@ -235,6 +235,23 @@ public class TreeNode {
   private TreeNode leftChild;
   private TreeNode rightChild;
   
+  public TreeNode(Integer data) {
+    this.data = data;
+  }
+  
+  public TreeNode find(Integer data) {
+    if (this.data == data) {
+      return this;
+    }
+    if (data < this.data && leftChild != null) {
+      return leftChild.find(data);
+    }
+    if (rightChild != null) {
+      return rightChild.find(data);
+    }
+    return null;
+  }
+  
   public Integer getData() {
     return data;
   }
@@ -254,6 +271,24 @@ public class TreeNode {
   public TreeNode getRightChild() {
     return rightChild;
   }
+  
+  public void delete() {
+    this.isDeleted = true;
+  }
+  
+  public boolean isDeleted() {
+    return isDeleted; 
+  }
+  
+  public Integer smallest() {
+    if (this.leftChild == null) return this.data;
+    return this.leftChild.smallest();
+  }
+  
+  public Integer largest() {
+    if (this.rightChild == null) return this.data;
+    return this.rightChild.largest();
+  }
 }
 ```
 The corresponding binary tree is :
@@ -265,10 +300,72 @@ public class BinaryTree {
   
   private TreeNode root;
   
-  public void insert(Integer data) {}
+  public void insert(Integer data) {
+    if (data >= this.data) {
+      if (this.rightChild == null) { this.rightChild = new TreeNode(data)};
+      else { this.rightChild.insert(data)};
+    } else {
+      if (this.leftChild == null) { this.leftChild = new TreeNode(data) };
+      else { this.lefttChild.insert(data) };
+    }
+  }
   
-  public TreeNode find(Integer data) { return null;}
+  public Integer smallest() {
+    if (this.root != null) return root.smallest();
+    return null;
+  }
   
-  public void delete(Integer data) {}
+  public Integer largest() {
+    if (this.root != null) return root.largest();
+    return null;
+  }
+  
+  public TreeNode find(Integer data) { 
+    if(root != null) {
+      return root.find(data);
+    }
+    return null;
+  }
+  
+  public void delete(Integer data) {
+  
+    TreeNode current = this.root;
+    TreeNode parent = this.root;
+    boolean isLeftChild = false;
+    
+    if (current == null) return;
+    
+    while (current != null && current.getData() != data) {
+    
+      parent = current;
+      if (data < current.getData()) {
+        current = current.getLeftChild();
+        isLeftChild = true;
+      } else {
+        current = current.getRightChild();
+        isLeftChild = false;
+      }
+    }
+    
+    if (current == null) return;
+    
+    if (current.getLeftChild()== null && current.getRightChild == null) {
+      if (current == root) { root = null; }
+      else {
+        if (isLeftChild) { parent.setLeftChild(null); }
+        else { parent.setRightChild(null); }
+      }
+    }
+    else if (current.getRightChild() == null) {
+      if (current == root) { root = current.getLeftChild(); }
+      else if (isLeftChild) { parent.setLeftChild(current.getLeftChild()); }
+      else { parent.setRightChild(current.getLeftChild());}
+    }
+     else if (current.getLeftChild() == null) {
+      if (current == root) { root = current.getRightChild(); }
+      else if (isLeftChild) { parent.setLeftChild(current.getRightChild()); }
+      else { parent.setRightChild(current.getRightChild());}
+    }
+  }
 }
 ```
