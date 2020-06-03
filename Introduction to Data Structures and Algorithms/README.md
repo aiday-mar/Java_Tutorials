@@ -380,5 +380,17 @@ QuickSort(A, start, end)
     return
   pivot = Partition(A, start, end)
   QuickSort(A, start, pivot-1)
-  QuickSort(A, pivot+1, end)
+  QuickSort(A, pivot+1, end
+
+Partition(A, start, end)
+  pivot = A[end]
+  i = start
+  for j = start to end-1
+    if A[j] <= pivot
+      exchange A[j] with A[i]
+      i = i + 1
+  exchange A[i] with A[end]
 ```
+A heap is a binary tree which is complete, and every node's key is larger than or equal to the keys of its children.
+
+Direct access tables have keys in a finite set and distinct keys. A hash function maps keys randomly into slots of a table. When in the hashtable several elements get the same value through the hash function, then these objects or pieces of data are placed into a linked list. If we have n keys put into m slots then we have on average a load factor of n/m.
